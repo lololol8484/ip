@@ -6,6 +6,8 @@ public class Dook {
                                 + "\t| | | | | | | | | | ' / \n"
                                 + "\t| |_| | |_| | |_| | . \\ \n"
                                 + "\t|____/ \\___/ \\___/|_|\\_\\\n";
+    private static String[] tasks = new String[100];
+    private static int taskCount = 0;
 
     public static void main(String[] args) {
         System.out.println("\t____________________________________________________________");
@@ -20,8 +22,20 @@ public class Dook {
             if(input.equals("bye")) {
                 break;
             }
+
+            if(input.equals("list")) {
+                System.out.println("\t____________________________________________________________");
+                for(int i = 0; i < taskCount; i++) {
+                    System.out.println("\t" + (i + 1) + ". " + tasks[i]);
+                }
+                System.out.println("\t____________________________________________________________\n");
+                continue;
+            }
+
+            tasks[taskCount] = input;
+            taskCount++;
             System.out.println("\t____________________________________________________________");
-            System.out.println("\t" + input);
+            System.out.println("\tAdded: " + input);
             System.out.println("\t____________________________________________________________\n");
         }
 
