@@ -17,23 +17,23 @@ public class Dook {
         System.out.println("\t____________________________________________________________\n");
 
         Scanner in = new Scanner(System.in);
-        while(true) {
+        while (true) {
             String input = in.nextLine();
-            if(input.equals("bye")) {
+            if (input.equals("bye")) {
                 break;
             }
 
-            if(input.equals("list")) {
+            if (input.equals("list")) {
                 System.out.println("\t____________________________________________________________");
                 System.out.println("\tHere are the tasks in your list:");
-                for(int i = 0; i < taskCount; i++) {
+                for (int i = 0; i < taskCount; i++) {
                     System.out.println("\t" + (i + 1) + ". [" + tasks[i].getStatusIcon() + "] " + tasks[i].getDescription());
                 }
                 System.out.println("\t____________________________________________________________\n");
                 continue;
             }
 
-            if(input.startsWith("mark ")) {
+            if (input.startsWith("mark ")) {
                 int taskNumber = Integer.parseInt(input.split(" ")[1]) - 1;
                 tasks[taskNumber].markAsDone();
                 System.out.println("\t____________________________________________________________");
@@ -43,7 +43,7 @@ public class Dook {
                 continue;
             }
 
-            if(input.startsWith("unmark ")) {
+            if (input.startsWith("unmark ")) {
                 int taskNumber = Integer.parseInt(input.split(" ")[1]) - 1;
                 tasks[taskNumber].markAsNotDone();
                 System.out.println("\t____________________________________________________________");
