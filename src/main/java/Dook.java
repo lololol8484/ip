@@ -27,7 +27,7 @@ public class Dook {
                 System.out.println("\t____________________________________________________________");
                 System.out.println("\tHere are the tasks in your list:");
                 for (int i = 0; i < taskCount; i++) {
-                    System.out.println("\t" + (i + 1) + ". [" + tasks[i].getStatusIcon() + "] " + tasks[i].getDescription());
+                    System.out.println("\t" + (i + 1) + "." + tasks[i]);
                 }
                 System.out.println("\t____________________________________________________________\n");
                 continue;
@@ -38,7 +38,7 @@ public class Dook {
                 tasks[taskNumber].markAsDone();
                 System.out.println("\t____________________________________________________________");
                 System.out.println("\tNice! I've marked this task as done:");
-                System.out.println("\t   [" + tasks[taskNumber].getStatusIcon() + "] " + tasks[taskNumber].getDescription());
+                System.out.println("\t  " + tasks[taskNumber]);
                 System.out.println("\t____________________________________________________________\n");
                 continue;
             }
@@ -48,15 +48,27 @@ public class Dook {
                 tasks[taskNumber].markAsNotDone();
                 System.out.println("\t____________________________________________________________");
                 System.out.println("\tOK, I've marked this task as not done yet:");
-                System.out.println("\t   [" + tasks[taskNumber].getStatusIcon() + "] " + tasks[taskNumber].getDescription());
+                System.out.println("\t  " + tasks[taskNumber]);
                 System.out.println("\t____________________________________________________________\n");
                 continue;
             }
 
-            tasks[taskCount] = new Task(input);
+            if (input.startsWith("todo ")) {
+                tasks[taskCount] = new Todo(input.substring(5));
+            }
+            else if (input.startsWith("deadline ")) {
+                String[] parts = input.substring(9).split(" /by ");
+                tasks[taskCount] = new Deadline(parts[0], parts[1]);
+            }
+            else if (input.startsWith("event ")) {
+                String[] parts = input.substring(6).split(" /from | /to ");
+                tasks[taskCount] = new Event(parts[0], parts[1], parts[2]);
+            }
             taskCount++;
             System.out.println("\t____________________________________________________________");
-            System.out.println("\tAdded: " + input);
+            System.out.println("\tGot it. I've added this task:");
+            System.out.println("\t  " + tasks[taskCount - 1]);
+            System.out.println("\tNow you have " + taskCount + " tasks in the list.");
             System.out.println("\t____________________________________________________________\n");
         }
 
