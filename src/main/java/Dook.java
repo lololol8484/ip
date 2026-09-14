@@ -53,9 +53,19 @@ public class Dook {
      * Marks the specified task as done and prints a confirmation message.
      *
      * @param input the user's mark command
+     * @throws DookException if the task number is not an integer or is out of range
      */
-    private static void handleMarkCommand(String input) {
-        int taskNumber = Integer.parseInt(input.substring(MARK_COMMAND.length()));
+    private static void handleMarkCommand(String input) throws DookException {
+        int taskNumber;
+        try {
+            taskNumber = Integer.parseInt(input.substring(MARK_COMMAND.length()));
+        }
+        catch (NumberFormatException e) {
+            throw new DookException("The task number must be an integer.");
+        }
+        if (taskNumber < 1 || taskNumber > taskCount) {
+            throw new DookException("That task number is out of range.");
+        }
         tasks[taskNumber - 1].markAsDone();
         printMarkConfirmation(taskNumber);
     }
@@ -71,9 +81,19 @@ public class Dook {
      * Marks the specified task as not done and prints a confirmation message.
      *
      * @param input the user's unmark command
+     * @throws DookException if the task number is not an integer or is out of range
      */
-    private static void handleUnmarkCommand(String input) {
-        int taskNumber = Integer.parseInt(input.substring(UNMARK_COMMAND.length()));
+    private static void handleUnmarkCommand(String input) throws DookException {
+        int taskNumber;
+        try {
+            taskNumber = Integer.parseInt(input.substring(UNMARK_COMMAND.length()));
+        }
+        catch (NumberFormatException e) {
+            throw new DookException("The task number must be an integer.");
+        }
+        if (taskNumber < 1 || taskNumber > taskCount) {
+            throw new DookException("That task number is out of range.");
+        }
         tasks[taskNumber - 1].markAsNotDone();
         printUnmarkConfirmation(taskNumber);
     }
@@ -90,23 +110,90 @@ public class Dook {
      * Creates and adds a Todo, Deadline, or Event based on the user's command.
      *
      * @param input the user's add task command
+     * @throws DookException if the command contains invalid or incomplete task details, or if the task list is full
      */
-    private static void handleAddTaskCommand(String input) {
+    private static void handleAddTaskCommand(String input) throws DookException {
+        if (taskCount >= MAX_TASKS) {
+            throw new DookException("Your task list is full.");
+        }
         if (input.startsWith(TODO_COMMAND)) {
-            tasks[taskCount] = new Todo(input.substring(TODO_COMMAND.length()));
+            String description = input.substring(TODO_COMMAND.length());
+            if (description.trim().isEmpty()) {
+                throw new DookException("The description of a todo cannot be empty.");
+            }
+            tasks[taskCount] = new Todo(description);
         }
         else if (input.startsWith(DEADLINE_COMMAND)) {
-            // Split the input into description and by parts using the specified delimiter
-            String[] deadlineParts = input.substring(DEADLINE_COMMAND.length()).split(" /by ");
+            String content = input.substring(DEADLINE_COMMAND.length());
+            if (content.trim().isEmpty()) {
+                throw new DookException("The content of a deadline cannot be empty.");
+            }
+            // Split the content into description and by parts using the specified delimiter
+            String[] deadlineParts = content.split(" /by ");
+            if (deadlineParts.length != 2) {
+                throw new DookException("A deadline must include exactly one description and one /by date.");
+            }
+            if (deadlineParts[0].trim().isEmpty()) {
+                throw new DookException("The description of a deadline cannot be empty.");
+            }
+            if (deadlineParts[1].trim().isEmpty()) {
+                throw new DookException("The /by date of a deadline cannot be empty.");
+            }
             tasks[taskCount] = new Deadline(deadlineParts[0], deadlineParts[1]);
         }
         else if (input.startsWith(EVENT_COMMAND)) {
-            // Split the input into description, from, and to parts using the specified delimiters
-            String[] eventParts = input.substring(EVENT_COMMAND.length()).split(" /from | /to ");
+            String content = input.substring(EVENT_COMMAND.length());
+            if (content.trim().isEmpty()) {
+                throw new DookException("The content of an event cannot be empty.");
+            }
+            // Split the content into description, from, and to parts using the specified delimiters
+            String[] eventParts = content.split(" /from | /to ");
+            if (eventParts.length != 3) {
+                throw new DookException("An event must include exactly one description, one /from date, and one /to date.");
+            }
+            if (eventParts[0].trim().isEmpty()) {
+                throw new DookException("The description of an event cannot be empty.");
+            }
+            if (eventParts[1].trim().isEmpty()) {
+                throw new DookException("The /from date of an event cannot be empty.");
+            }
+            if (eventParts[2].trim().isEmpty()) {
+                throw new DookException("The /to date of an event cannot be empty.");
+            }
             tasks[taskCount] = new Event(eventParts[0], eventParts[1], eventParts[2]);
         }
         taskCount++;
         printAddTaskConfirmation();
+    }
+
+    /**
+     * Identifies the user's command and delegates it to the appropriate handler.
+     *
+     * @param input the user's command
+     * @throws DookException if the command is unknown or if the delegated handler encounters an error
+     */
+    private static void handleCommand(String input) throws DookException {
+        if (input.equals(LIST_COMMAND)) {
+            printTaskList();
+        }
+        else if (input.startsWith(MARK_COMMAND)) {
+            handleMarkCommand(input);
+        }
+        else if (input.startsWith(UNMARK_COMMAND)) {
+            handleUnmarkCommand(input);
+        }
+        else if (input.startsWith(TODO_COMMAND) || input.startsWith(DEADLINE_COMMAND) || input.startsWith(EVENT_COMMAND)) {
+            handleAddTaskCommand(input);
+        }
+        else {
+            throw new DookException("I'm sorry, but I don't know what that means :-(");
+        }
+    }
+
+    private static void printErrorMessage(DookException e) {
+        System.out.println("\t" + LINE_SEPARATOR);
+        System.out.println("\tOOPS!!! " + e.getMessage());
+        System.out.println("\t" + LINE_SEPARATOR + "\n");
     }
 
     public static void main(String[] args) {
@@ -119,24 +206,11 @@ public class Dook {
                 break;
             }
 
-            if (input.equals(LIST_COMMAND)) {
-                printTaskList();
-                continue;
+            try {
+                handleCommand(input);
             }
-
-            if (input.startsWith(MARK_COMMAND)) {
-                handleMarkCommand(input);
-                continue;
-            }
-
-            if (input.startsWith(UNMARK_COMMAND)) {
-                handleUnmarkCommand(input);
-                continue;
-            }
-
-            if (input.startsWith(TODO_COMMAND) || input.startsWith(DEADLINE_COMMAND) || input.startsWith(EVENT_COMMAND)) {
-                handleAddTaskCommand(input);
-                continue;
+            catch (DookException e) {
+                printErrorMessage(e);
             }
         }
     }
