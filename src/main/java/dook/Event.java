@@ -1,3 +1,5 @@
+package dook;
+
 public class Event extends Task {
     private String from, to;
 
