@@ -114,7 +114,7 @@ public class Dook {
      * Creates and adds a Todo, Deadline, or Event based on the user's command.
      *
      * @param input the user's add task command
-     * @throws DookException if the command contains invalid or incomplete task details, or if the task list is full
+     * @throws DookException if the command contains invalid or incomplete task details
      */
     private static void handleAddTaskCommand(String input) throws DookException {
         if (input.startsWith(TODO_COMMAND)) {
@@ -193,6 +193,7 @@ public class Dook {
             throw new DookException("That task number is out of range.");
         }
         Task deletedTask = tasks.remove(taskNumber - 1);
+        Storage.saveTasks(tasks);
         printDeleteConfirmation(deletedTask);
     }
 
