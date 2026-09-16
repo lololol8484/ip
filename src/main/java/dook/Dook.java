@@ -1,6 +1,7 @@
 package dook;
 
 import java.util.Scanner;
+import java.util.ArrayList;
 
 public class Dook {
     private static final String BANNER = "\t ____   ___   ___  _  __\n"
@@ -8,7 +9,6 @@ public class Dook {
                                         + "\t| | | | | | | | | | ' / \n"
                                         + "\t| |_| | |_| | |_| | . \\ \n"
                                         + "\t|____/ \\___/ \\___/|_|\\_\\\n";
-    private static final int MAX_TASKS = 100;
     private static final String LINE_SEPARATOR = "____________________________________________________________";
     private static final String BYE_COMMAND = "bye";
     private static final String LIST_COMMAND = "list";
@@ -18,8 +18,7 @@ public class Dook {
     private static final String DEADLINE_COMMAND = "deadline ";
     private static final String EVENT_COMMAND = "event ";
 
-    private static Task[] tasks = new Task[MAX_TASKS];
-    private static int taskCount = 0;
+    private static ArrayList<Task> tasks = new ArrayList<>();
 
     private static void printGreetingMessage() {
         System.out.println("\t" + LINE_SEPARATOR);
@@ -38,8 +37,8 @@ public class Dook {
     private static void printTaskList() {
         System.out.println("\t" + LINE_SEPARATOR);
         System.out.println("\tHere are the tasks in your list:");
-        for (int i = 0; i < taskCount; i++) {
-            System.out.println("\t" + (i + 1) + "." + tasks[i]);
+        for (int i = 0; i < tasks.size(); i++) {
+            System.out.println("\t" + (i + 1) + "." + tasks.get(i));
         }
         System.out.println("\t" + LINE_SEPARATOR + "\n");
     }
@@ -47,7 +46,7 @@ public class Dook {
     private static void printMarkConfirmation(int taskNumber) {
         System.out.println("\t" + LINE_SEPARATOR);
         System.out.println("\tNice! I've marked this task as done:");
-        System.out.println("\t  " + tasks[taskNumber - 1]);
+        System.out.println("\t  " + tasks.get(taskNumber - 1));
         System.out.println("\t" + LINE_SEPARATOR + "\n");
     }
 
@@ -65,17 +64,18 @@ public class Dook {
         catch (NumberFormatException e) {
             throw new DookException("The task number must be an integer.");
         }
-        if (taskNumber < 1 || taskNumber > taskCount) {
+        if (taskNumber < 1 || taskNumber > tasks.size()) {
             throw new DookException("That task number is out of range.");
         }
-        tasks[taskNumber - 1].markAsDone();
+        tasks.get(taskNumber - 1).markAsDone();
+        Storage.saveTasks(tasks);
         printMarkConfirmation(taskNumber);
     }
 
     private static void printUnmarkConfirmation(int taskNumber) {
         System.out.println("\t" + LINE_SEPARATOR);
         System.out.println("\tOK, I've marked this task as not done yet:");
-        System.out.println("\t  " + tasks[taskNumber - 1]);
+        System.out.println("\t  " + tasks.get(taskNumber - 1));
         System.out.println("\t" + LINE_SEPARATOR + "\n");
     }
 
@@ -93,18 +93,19 @@ public class Dook {
         catch (NumberFormatException e) {
             throw new DookException("The task number must be an integer.");
         }
-        if (taskNumber < 1 || taskNumber > taskCount) {
+        if (taskNumber < 1 || taskNumber > tasks.size()) {
             throw new DookException("That task number is out of range.");
         }
-        tasks[taskNumber - 1].markAsNotDone();
+        tasks.get(taskNumber - 1).markAsNotDone();
+        Storage.saveTasks(tasks);
         printUnmarkConfirmation(taskNumber);
     }
 
     private static void printAddTaskConfirmation() {
         System.out.println("\t" + LINE_SEPARATOR);
         System.out.println("\tGot it. I've added this task:");
-        System.out.println("\t  " + tasks[taskCount - 1]);
-        System.out.println("\tNow you have " + taskCount + " tasks in the list.");
+        System.out.println("\t  " + tasks.get(tasks.size() - 1));
+        System.out.println("\tNow you have " + tasks.size() + " tasks in the list.");
         System.out.println("\t" + LINE_SEPARATOR + "\n");
     }
 
@@ -115,15 +116,12 @@ public class Dook {
      * @throws DookException if the command contains invalid or incomplete task details, or if the task list is full
      */
     private static void handleAddTaskCommand(String input) throws DookException {
-        if (taskCount >= MAX_TASKS) {
-            throw new DookException("Your task list is full.");
-        }
         if (input.startsWith(TODO_COMMAND)) {
             String description = input.substring(TODO_COMMAND.length());
             if (description.trim().isEmpty()) {
                 throw new DookException("The description of a todo cannot be empty.");
             }
-            tasks[taskCount] = new Todo(description);
+            tasks.add(new Todo(description));
         }
         else if (input.startsWith(DEADLINE_COMMAND)) {
             String content = input.substring(DEADLINE_COMMAND.length());
@@ -141,7 +139,7 @@ public class Dook {
             if (deadlineParts[1].trim().isEmpty()) {
                 throw new DookException("The /by date of a deadline cannot be empty.");
             }
-            tasks[taskCount] = new Deadline(deadlineParts[0], deadlineParts[1]);
+            tasks.add(new Deadline(deadlineParts[0], deadlineParts[1]));
         }
         else if (input.startsWith(EVENT_COMMAND)) {
             String content = input.substring(EVENT_COMMAND.length());
@@ -162,9 +160,9 @@ public class Dook {
             if (eventParts[2].trim().isEmpty()) {
                 throw new DookException("The /to date of an event cannot be empty.");
             }
-            tasks[taskCount] = new Event(eventParts[0], eventParts[1], eventParts[2]);
+            tasks.add(new Event(eventParts[0], eventParts[1], eventParts[2]));
         }
-        taskCount++;
+        Storage.saveTasks(tasks);
         printAddTaskConfirmation();
     }
 
@@ -199,6 +197,12 @@ public class Dook {
     }
 
     public static void main(String[] args) {
+        try {
+            tasks = Storage.loadTasks();
+        }
+        catch (DookException e) {
+            printErrorMessage(e);
+        }
         printGreetingMessage();
         Scanner scanner = new Scanner(System.in);
         while (true) {
