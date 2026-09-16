@@ -69,6 +69,10 @@ public class Dook {
             throw new DookException("That task number is out of range.");
         }
         tasks.get(taskNumber - 1).markAsDone();
+<<<<<<< HEAD
+=======
+        Storage.saveTasks(tasks);
+>>>>>>> branch-Level-7
         printMarkConfirmation(taskNumber);
     }
 
@@ -97,6 +101,10 @@ public class Dook {
             throw new DookException("That task number is out of range.");
         }
         tasks.get(taskNumber - 1).markAsNotDone();
+<<<<<<< HEAD
+=======
+        Storage.saveTasks(tasks);
+>>>>>>> branch-Level-7
         printUnmarkConfirmation(taskNumber);
     }
 
@@ -161,6 +169,10 @@ public class Dook {
             }
             tasks.add(new Event(eventParts[0], eventParts[1], eventParts[2]));
         }
+<<<<<<< HEAD
+=======
+        Storage.saveTasks(tasks);
+>>>>>>> branch-Level-7
         printAddTaskConfirmation();
     }
 
@@ -227,6 +239,12 @@ public class Dook {
     }
 
     public static void main(String[] args) {
+        try {
+            tasks = Storage.loadTasks();
+        }
+        catch (DookException e) {
+            printErrorMessage(e);
+        }
         printGreetingMessage();
         Scanner scanner = new Scanner(System.in);
         while (true) {
