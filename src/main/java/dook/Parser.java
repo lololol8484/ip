@@ -1,0 +1,115 @@
+package dook;
+
+public class Parser {
+    private static final String BYE_COMMAND = "bye";
+    private static final String LIST_COMMAND = "list";
+    private static final String MARK_COMMAND = "mark";
+    private static final String UNMARK_COMMAND = "unmark";
+    private static final String TODO_COMMAND = "todo";
+    private static final String DEADLINE_COMMAND = "deadline";
+    private static final String EVENT_COMMAND = "event";
+    private static final String DELETE_COMMAND = "delete";
+
+    public CommandType parseCommand(String input) {
+        String command = input.split(" ")[0];
+        switch (command) {
+            case BYE_COMMAND:
+                return CommandType.BYE;
+            case LIST_COMMAND:
+                return CommandType.LIST;
+            case MARK_COMMAND:
+                return CommandType.MARK;
+            case UNMARK_COMMAND:
+                return CommandType.UNMARK;
+            case TODO_COMMAND:
+                return CommandType.TODO;
+            case DEADLINE_COMMAND:
+                return CommandType.DEADLINE;
+            case EVENT_COMMAND:
+                return CommandType.EVENT;
+            case DELETE_COMMAND:
+                return CommandType.DELETE;
+            default:
+                return CommandType.UNKNOWN;
+        }
+    }
+
+    public int parseMarkCommand(String input) throws DookException {
+        try {
+            return Integer.parseInt(input.substring(MARK_COMMAND.length()).trim());
+        }
+        catch (NumberFormatException e) {
+            throw new DookException("The task number must be an integer.");
+        }
+    }
+
+    public int parseUnmarkCommand(String input) throws DookException {
+        try {
+            return Integer.parseInt(input.substring(UNMARK_COMMAND.length()).trim());
+        }
+        catch (NumberFormatException e) {
+            throw new DookException("The task number must be an integer.");
+        }
+    }
+
+    public Todo parseTodoCommand(String input) throws DookException {
+        String description = input.substring(TODO_COMMAND.length()).trim();
+        if (description.isEmpty()) {
+            throw new DookException("The description of a todo cannot be empty.");
+        }
+        return new Todo(description);
+    }
+
+    public Deadline parseDeadlineCommand(String input) throws DookException {
+        String content = input.substring(DEADLINE_COMMAND.length()).trim();
+        if (content.isEmpty()) {
+            throw new DookException("The content of a deadline cannot be empty.");
+        }
+        String[] deadlineParts = content.split(" /by ");
+        if (deadlineParts.length != 2) {
+            throw new DookException("A deadline must include exactly one description and one /by date.");
+        }
+        String description = deadlineParts[0].trim();
+        String by = deadlineParts[1].trim();
+        if (description.isEmpty()) {
+            throw new DookException("The description of a deadline cannot be empty.");
+        }
+        if (by.isEmpty()) {
+            throw new DookException("The /by date of a deadline cannot be empty.");
+        }
+        return new Deadline(description, by);
+    }
+
+    public Event parseEventCommand(String input) throws DookException {
+        String content = input.substring(EVENT_COMMAND.length()).trim();
+        if (content.isEmpty()) {
+            throw new DookException("The content of an event cannot be empty.");
+        }
+        String[] eventParts = content.split(" /from | /to ");
+        if (eventParts.length != 3) {
+            throw new DookException("An event must include exactly one description, one /from date, and one /to date.");
+        }
+        String description = eventParts[0].trim();
+        String from = eventParts[1].trim();
+        String to = eventParts[2].trim();
+        if (description.isEmpty()) {
+            throw new DookException("The description of an event cannot be empty.");
+        }
+        if (from.isEmpty()) {
+            throw new DookException("The /from date of an event cannot be empty.");
+        }
+        if (to.isEmpty()) {
+            throw new DookException("The /to date of an event cannot be empty.");
+        }
+        return new Event(description, from, to);
+    }
+    
+    public int parseDeleteCommand(String input) throws DookException {
+        try {
+            return Integer.parseInt(input.substring(DELETE_COMMAND.length()).trim());
+        }
+        catch (NumberFormatException e) {
+            throw new DookException("The task number must be an integer.");
+        }
+    }
+}

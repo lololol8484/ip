@@ -3,12 +3,15 @@ package dook;
 import java.nio.file.Path;
 import java.nio.file.Files;
 import java.io.IOException;
-import java.util.ArrayList;
 
 public class Storage {
-    private static final Path FILE_PATH = Path.of("./data/dook.txt");
+    private final Path filePath;
 
-    public static void saveTasks(ArrayList<Task> tasks) throws DookException {
+    public Storage(String filePath) {
+        this.filePath = Path.of(filePath);
+    }
+
+    public void saveTasks(TaskList tasks) throws DookException {
         StringBuilder data = new StringBuilder();
         for (Task task : tasks) {
             if (task instanceof Todo) {
@@ -42,27 +45,27 @@ public class Storage {
             }
         }
         try {
-            Files.createDirectories(FILE_PATH.getParent());
-            Files.writeString(FILE_PATH, data.toString());
+            Files.createDirectories(filePath.getParent());
+            Files.writeString(filePath, data.toString());
         }
         catch (IOException e) {
             throw new DookException("Could not save tasks.");
         }
     }
 
-    public static ArrayList<Task> loadTasks() throws DookException {
-        if (!Files.exists(FILE_PATH)) {
-            return new ArrayList<>();
+    public TaskList loadTasks() throws DookException {
+        if (!Files.exists(filePath)) {
+            return new TaskList();
         }
         String data;
         try {
-            data = Files.readString(FILE_PATH);
+            data = Files.readString(filePath);
         }
         catch (IOException e) {
             throw new DookException("Could not load tasks.");
         }
         String[] lines = data.split("\\R");
-        ArrayList<Task> tasks = new ArrayList<>();
+        TaskList tasks = new TaskList();
         for (String line : lines) {
             String[] parts = line.split(" \\| ");
             if (parts.length < 3) {
@@ -98,7 +101,7 @@ public class Storage {
             if (status.equals("1")) {
                 task.markAsDone();
             }
-            tasks.add(task);
+            tasks.addTask(task);
         }
         return tasks;
     }
