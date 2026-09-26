@@ -74,6 +74,17 @@ public class Ui {
         System.out.println("\t" + LINE_SEPARATOR + "\n");
     }
 
+    public void showMatchingTaskList(TaskList matchingTasks) {
+        System.out.println("\t" + LINE_SEPARATOR);
+        System.out.println("\tHere are the matching tasks in your list:");
+        int taskNumber = 1;
+        for (Task task : matchingTasks) {
+            System.out.println("\t" + taskNumber + "." + task);
+            taskNumber++;
+        }
+        System.out.println("\t" + LINE_SEPARATOR + "\n");
+    }
+
     public void showErrorMessage(DookException e) {
         System.out.println("\t" + LINE_SEPARATOR);
         System.out.println("\tOOPS!!! " + e.getMessage());
