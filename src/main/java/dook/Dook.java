@@ -70,6 +70,11 @@ public class Dook {
                     storage.saveTasks(tasks);
                     ui.showDeleteConfirmation(deletedTask, tasks.size());
                 }
+                else if (commandType == CommandType.FIND) {
+                    String keyword = parser.parseFindCommand(input);
+                    TaskList matchingTasks = tasks.findTasks(keyword);
+                    ui.showMatchingTaskList(matchingTasks);
+                }
                 else if (commandType == CommandType.UNKNOWN) {
                     throw new DookException("I'm sorry, but I don't know what that means :-(");
                 }

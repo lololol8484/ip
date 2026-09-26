@@ -9,6 +9,7 @@ public class Parser {
     private static final String DEADLINE_COMMAND = "deadline";
     private static final String EVENT_COMMAND = "event";
     private static final String DELETE_COMMAND = "delete";
+    private static final String FIND_COMMAND = "find";
 
     public CommandType parseCommand(String input) {
         String command = input.split(" ")[0];
@@ -29,6 +30,8 @@ public class Parser {
                 return CommandType.EVENT;
             case DELETE_COMMAND:
                 return CommandType.DELETE;
+            case FIND_COMMAND:
+                return CommandType.FIND;
             default:
                 return CommandType.UNKNOWN;
         }
@@ -111,5 +114,13 @@ public class Parser {
         catch (NumberFormatException e) {
             throw new DookException("The task number must be an integer.");
         }
+    }
+
+    public String parseFindCommand(String input) throws DookException {
+        String keyword = input.substring(FIND_COMMAND.length()).trim();
+        if (keyword.isEmpty()) {
+            throw new DookException("The keyword to find cannot be empty.");
+        }
+        return keyword;
     }
 }
