@@ -1,5 +1,8 @@
 package dook;
 
+/**
+ * Parses user input into commands and extracts the relevant command arguments.
+ */
 public class Parser {
     private static final String BYE_COMMAND = "bye";
     private static final String LIST_COMMAND = "list";
@@ -11,6 +14,12 @@ public class Parser {
     private static final String DELETE_COMMAND = "delete";
     private static final String FIND_COMMAND = "find";
 
+    /**
+     * Determines the command type from the user's input.
+     *
+     * @param input the user's input
+     * @return the command type corresponding to the input
+     */
     public CommandType parseCommand(String input) {
         String command = input.split(" ")[0];
         switch (command) {
@@ -37,24 +46,45 @@ public class Parser {
         }
     }
 
+    /**
+     * Parses the task number from a mark command.
+     *
+     * @param input the user's mark command
+     * @return the task number
+     * @throws DookException if the task number is not an integer
+     */
     public int parseMarkCommand(String input) throws DookException {
         try {
+            // Remove the command prefix before converting the remaining input to an integer.
             return Integer.parseInt(input.substring(MARK_COMMAND.length()).trim());
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new DookException("The task number must be an integer.");
         }
     }
 
+    /**
+     * Parses the task number from an unmark command.
+     *
+     * @param input the user's unmark command
+     * @return the task number
+     * @throws DookException if the task number is not an integer
+     */
     public int parseUnmarkCommand(String input) throws DookException {
         try {
+            // Remove the command prefix before converting the remaining input to an integer.
             return Integer.parseInt(input.substring(UNMARK_COMMAND.length()).trim());
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new DookException("The task number must be an integer.");
         }
     }
 
+    /**
+     * Parses a todo command and creates the corresponding todo task.
+     *
+     * @param input the user's todo command
+     * @return the todo task created from the input
+     * @throws DookException if the todo description is empty
+     */
     public Todo parseTodoCommand(String input) throws DookException {
         String description = input.substring(TODO_COMMAND.length()).trim();
         if (description.isEmpty()) {
@@ -63,11 +93,19 @@ public class Parser {
         return new Todo(description);
     }
 
+    /**
+     * Parses a deadline command and creates the corresponding deadline task.
+     *
+     * @param input the user's deadline command
+     * @return the deadline task created from the input
+     * @throws DookException if the deadline format or its fields are invalid
+     */
     public Deadline parseDeadlineCommand(String input) throws DookException {
         String content = input.substring(DEADLINE_COMMAND.length()).trim();
         if (content.isEmpty()) {
             throw new DookException("The content of a deadline cannot be empty.");
         }
+        // Split the input into the description and the deadline date.
         String[] deadlineParts = content.split(" /by ");
         if (deadlineParts.length != 2) {
             throw new DookException("A deadline must include exactly one description and one /by date.");
@@ -83,11 +121,19 @@ public class Parser {
         return new Deadline(description, by);
     }
 
+    /**
+     * Parses an event command and creates the corresponding event task.
+     *
+     * @param input the user's event command
+     * @return the event task created from the input
+     * @throws DookException if the event format or its fields are invalid
+     */
     public Event parseEventCommand(String input) throws DookException {
         String content = input.substring(EVENT_COMMAND.length()).trim();
         if (content.isEmpty()) {
             throw new DookException("The content of an event cannot be empty.");
         }
+        // Split the input into the description, start date, and end date.
         String[] eventParts = content.split(" /from | /to ");
         if (eventParts.length != 3) {
             throw new DookException("An event must include exactly one description, one /from date, and one /to date.");
@@ -106,16 +152,30 @@ public class Parser {
         }
         return new Event(description, from, to);
     }
-    
+
+    /**
+     * Parses the task number from a delete command.
+     *
+     * @param input the user's delete command
+     * @return the task number
+     * @throws DookException if the task number is not an integer
+     */
     public int parseDeleteCommand(String input) throws DookException {
         try {
+            // Remove the command prefix before converting the remaining input to an integer.
             return Integer.parseInt(input.substring(DELETE_COMMAND.length()).trim());
-        }
-        catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new DookException("The task number must be an integer.");
         }
     }
 
+    /**
+     * Parses the keyword from a find command.
+     *
+     * @param input the user's find command
+     * @return the keyword to search for
+     * @throws DookException if the keyword is empty
+     */
     public String parseFindCommand(String input) throws DookException {
         String keyword = input.substring(FIND_COMMAND.length()).trim();
         if (keyword.isEmpty()) {
