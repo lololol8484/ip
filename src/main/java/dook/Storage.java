@@ -80,6 +80,9 @@ public class Storage {
         } catch (IOException e) {
             throw new DookException("Could not load tasks.");
         }
+        if (data.isBlank()) {
+            return new TaskList();
+        }
         String[] lines = data.split("\\R");
         TaskList tasks = new TaskList();
         for (String line : lines) {
